@@ -68,16 +68,22 @@ app.post('/create', (req, res) => {
   });
 });
 
-// Route pour update un étudiant
+// Route pour update un étudiant (app.put)
 app.put('/update/:id', (req, res) => {
-  const sql = "UPDATE student SET `name` = ?, `email` = ? WHERE id = ?"; // requête modif ça recherche obligatoirement un champs name etc, requête préparée sécurité contre injection xss et faille sql (à vérifier)
+
+  // const sql (requête)
+  const sql = "UPDATE student SET name=?, email=? WHERE id=?"; // requête modif ça recherche obligatoirement un champs name etc, requête préparée sécurité contre injection xss et faille sql (à vérifier)
+  
+  // const values à insérer
   const values = [ // valeurs à insérer
     req.body.name, 
     req.body.email
 ]
-  const id = req.params.id; // useParams sert à récupérer les paramètres dynamiques équiv wildcard en symfony
+// const id req.params.id  
+// const id = req.params.id; // useParams sert à récupérer les paramètres dynamiques équiv wildcard en symfony
 
-  database.query(sql, [...values, id], (err, data) => { // Execution de la requête SQL ds le respect des marqueurs de position ds l'ordre (name, mail et id)
+// const db.query (constRequête, req.params.id, (err,data)
+database.query(sql, [...values, req.params.id], (err, data) => { // Execution de la requête SQL ds le respect des marqueurs de position ds l'ordre (name, mail et id)
     if (err) {
         return res.status(500).json({ error: "Erreur modification" });
     }
@@ -87,13 +93,16 @@ app.put('/update/:id', (req, res) => {
 })
 
 // ROUTE DELETE 
-app.post('/delete/student/:id', (req, res) => {
-    const sql = "DELETE FROM student WHERE id= ?";
-    const id = req.params.id;
+app.delete('/student/:id', (req, res) => {
 
+    // const requete sql
+    const sql = "DELETE FROM student WHERE id = ?";
+    // const id req.params.id
+    const id = req.params.id;
+  // db.query exécution requête en 3 tps (requête, id, err/data) {si erreur retour res.json + mess, res.json }
     database.query(sql, [id], (err, data) => {
-    if (err) return res.status(500).json({ error: "Erreur modification" });
-    res.json({ message: 'Etudiant supprimé', data });
+    if (err) return res.json("Erreur modification");
+    res.json(data);
   })
 })
 
